@@ -21,10 +21,9 @@ wheels/
 *.egg
 
 # Virtual Environment
-.env
-.venv
 venv/
 ENV/
+env/
 
 # IDE
 .idea/
@@ -32,29 +31,29 @@ ENV/
 *.swp
 *.swo
 
-# Logs and databases
-*.log
-*.sqlite
-*.db
-nohup.out
-
-# Test coverage
+# Testing
 .coverage
 htmlcov/
 .pytest_cache/
+.tox/
 
 # Project specific
-youtube_analysis*.json
-youtube_analytics_report_*.json
-youtube_collection_*.json
-mock_test_results.json
-production_test_report.txt
-youtube_collector.out
-*.tar.gz
+keno_data/keno_results_all.csv
+keno_data/csv/*
+keno_data/json/*
+!keno_data/csv/.gitkeep
+!keno_data/json/.gitkeep
+analysis_output/*.png
+!analysis_output/.gitkeep
 
-# Cache
-.cache/
-__pycache__/
+# Logs
+*.log
+logs/
+
+# Logs and databases
+*.sqlite
+*.db
+nohup.out
 
 # System Files
 .DS_Store
