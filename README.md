@@ -1,9 +1,9 @@
 # Keno Strategy Analyzer
 
-[![Test](https://github.com/yourusername/keno-analyzer/actions/workflows/test.yml/badge.svg)](https://github.com/yourusername/keno-analyzer/actions/workflows/test.yml)
-[![Coverage](https://img.shields.io/badge/coverage-0%25-red.svg)](https://yourusername.github.io/keno-analyzer/coverage_html/index.html)
+[![Test](https://github.com/Smoken35/keno-analyzer/actions/workflows/test.yml/badge.svg)](https://github.com/Smoken35/keno-analyzer/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/badge/coverage-0%25-red.svg)](https://smoken35.github.io/keno-analyzer/coverage_html/index.html)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/github/license/yourusername/keno-analyzer)](LICENSE)
+[![License](https://img.shields.io/github/license/Smoken35/keno-analyzer)](LICENSE)
 [![PyPI version](https://badge.fury.io/py/keno-analyzer.svg)](https://badge.fury.io/py/keno-analyzer)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -21,15 +21,15 @@ A Python package for analyzing and optimizing Keno strategies using advanced sta
 ### Development Installation
 
 ```bash
-git clone https://github.com/yourusername/keno_analyzer.git
-cd keno_analyzer
+git clone https://github.com/Smoken35/keno-analyzer.git
+cd keno-analyzer
 pip install -e ".[dev]"
 ```
 
 ### User Installation
 
 ```bash
-pip install keno_analyzer
+pip install keno-analyzer
 ```
 
 ## Usage
@@ -117,4 +117,4 @@ sphinx-build -b html docs/source docs/build/html
 
 ![Coverage](https://img.shields.io/badge/coverage-0%25-red.svg)
 
-Detailed coverage reports are available at [Coverage Report](https://yourusername.github.io/keno-analyzer/coverage_html/index.html). 
+Detailed coverage reports are available at [Coverage Report](https://smoken35.github.io/keno-analyzer/coverage_html/index.html). 
