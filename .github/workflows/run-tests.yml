@@ -1,0 +1,34 @@
+name: Run B2B System Tests
+
+on:
+  workflow_dispatch:  # Manual trigger only, not automatic
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Unit Tests
+        run: pytest tests/unit/
+        
+      - name: Run Integration Tests
+        run: pytest tests/integration/
+        
+      - name: Run Self-Healing Tests
+        run: pytest tests/self_healing/
+        
+      - name: Run Sentiment Analysis Tests
+        run: pytest tests/sentiment_analysis/
+        
+      - name: Run BI Integration Tests
+        run: pytest tests/bi_integration/

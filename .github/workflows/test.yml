@@ -1,0 +1,80 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        pip install coverage
+    
+    - name: Run tests with coverage
+      run: |
+        pytest --junitxml=results.xml --cov=src/keno --cov-report=xml --cov-report=html -v
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-reports
+        path: |
+          coverage.xml
+          coverage_html/
+        retention-days: 14
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: results.xml
+        retention-days: 14
+    
+    - name: Check coverage threshold
+      run: |
+        coverage report --fail-under=80
+    
+    - name: Notify on failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { owner, repo, sha } = context.repo;
+          const run_url = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+          const message = `❌ Test workflow failed!\n\nRun URL: ${run_url}\nCommit: ${sha}`;
+          
+          // Create issue for failed tests
+          await github.rest.issues.create({
+            owner,
+            repo,
+            title: `Test failure in run ${context.runId}`,
+            body: message,
+            labels: ['bug', 'ci-failure']
+          });
+          
+          // Add comment to PR if this is a PR
+          if (context.eventName === 'pull_request') {
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: context.payload.pull_request.number,
+              body: message
+            });
+          } 

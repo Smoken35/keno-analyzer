@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert.rules"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - "localhost:9093"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'metrics_generator'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/metrics'
+    scheme: 'http'
+
+  - job_name: 'alert_receiver'
+    static_configs:
+      - targets: ['localhost:3456'] 

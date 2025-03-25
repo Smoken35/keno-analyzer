@@ -1,0 +1,36 @@
+[run]
+source = src/keno
+omit = 
+    */tests/*
+    */conftest.py
+    */__init__.py
+    */cli.py
+    */version.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == "__main__":
+    raise NotImplementedError
+    pass
+    except ImportError
+    def __repr__
+    @abstractmethod
+    @property
+    @classmethod
+    @staticmethod
+
+[html]
+directory = coverage_html
+
+[xml]
+output = coverage.xml
+
+[coverage:run]
+branch = True
+data_file = .coverage
+
+[coverage:report]
+precision = 2
+show_missing = True
+fail_under = 80 

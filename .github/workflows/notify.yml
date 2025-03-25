@@ -1,0 +1,47 @@
+name: Notify on Release
+
+on:
+  workflow_run:
+    workflows: ["Publish to PyPI"]
+    types:
+      - completed
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - name: Get release info
+      id: release
+      run: |
+        TAG=$(echo ${{ github.event.workflow_run.head_branch }} | sed 's/^v//')
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+    
+    - name: Create Release Note
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const tag = '${{ steps.release.outputs.tag }}';
+          const run_url = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+          
+          // Create a release note
+          await github.rest.repos.createRelease({
+            owner,
+            repo,
+            tag_name: `v${tag}`,
+            name: `Release v${tag}`,
+            body: `## Release v${tag}\n\nAutomated release via GitHub Actions\n\nRun URL: ${run_url}\n\n### Changes\n\n- Automated release\n- CI/CD pipeline improvements\n- Coverage reporting enhancements`,
+            draft: false,
+            prerelease: false
+          });
+          
+          // Create a discussion post
+          await github.rest.discussions.create({
+            owner,
+            repo,
+            title: `🎉 New Release: v${tag}`,
+            body: `We're excited to announce the release of v${tag}!\n\nThis release includes:\n- Automated release process\n- CI/CD pipeline improvements\n- Coverage reporting enhancements\n\nCheck out the [release notes](${context.serverUrl}/${owner}/${repo}/releases/tag/v${tag}) for more details.`,
+            category: 'announcements'
+          }); 

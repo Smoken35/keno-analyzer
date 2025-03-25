@@ -1,0 +1,61 @@
+name: Generate Coverage Graph
+
+on:
+  workflow_run:
+    workflows: ["Test"]
+    types:
+      - completed
+
+jobs:
+  generate-graph:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download coverage report
+      uses: actions/download-artifact@v3
+      with:
+        name: coverage-reports
+        path: coverage_html
+    
+    - name: Generate coverage graph
+      run: |
+        coverage=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(f'{float(root.get(\"line-rate\")) * 100:.1f}')")
+        
+        # Create markdown graph
+        cat > coverage-graph.md << EOF
+        ## Coverage History
+        
+        \`\`\`mermaid
+        graph TD
+            A[Coverage: ${coverage}%] --> B[Lines]
+            A --> C[Branches]
+            A --> D[Functions]
+            
+            B --> B1[Total: $(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.get('lines-valid'))")]
+            B --> B2[Covered: $(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.get('lines-covered'))")]
+            
+            C --> C1[Total: $(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.get('branches-valid'))")]
+            C --> C2[Covered: $(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.get('branches-covered'))")]
+            
+            D --> D1[Total: $(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.get('functions-valid'))")]
+            D --> D2[Covered: $(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.get('functions-covered'))")]
+        \`\`\`
+        EOF
+    
+    - name: Update README
+      run: |
+        if grep -q "## Coverage History" README.md; then
+          sed -i '/## Coverage History/,/```mermaid/c\' coverage-graph.md README.md
+        else
+          echo -e "\n$(cat coverage-graph.md)" >> README.md
+        fi
+    
+    - name: Commit and push if changed
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add README.md
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update coverage graph" && git push) 

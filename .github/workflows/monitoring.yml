@@ -1,0 +1,175 @@
+name: Monitoring System Check
+
+on:
+  push:
+    paths:
+      - 'monitoring/**'
+      - '.github/workflows/monitoring.yml'
+  pull_request:
+    paths:
+      - 'monitoring/**'
+      - '.github/workflows/monitoring.yml'
+  schedule:
+    - cron: '*/15 * * * *'  # Run every 15 minutes
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  monitoring-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Create directories and set permissions
+        run: |
+          mkdir -p monitoring/{scripts,logs,prometheus,alertmanager,grafana/provisioning/dashboards/json}
+          chmod -R 777 monitoring/logs
+          ls -la monitoring/scripts/  # Debug: List contents of scripts directory
+          ls -la monitoring/  # Debug: List contents of monitoring directory
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f monitoring/requirements.txt ]; then
+            pip install -r monitoring/requirements.txt
+          else
+            echo "monitoring/requirements.txt not found!"
+            exit 1
+          fi
+
+      - name: Check script files
+        run: |
+          for script in metrics_generator.py alert_receiver.py manage_services.py test_monitoring.py; do
+            if [ ! -f "monitoring/scripts/$script" ]; then
+              echo "Error: $script not found!"
+              exit 1
+            fi
+          done
+
+      - name: Kill existing processes
+        run: |
+          echo "Checking for existing processes..."
+          ps aux | grep -E "metrics_generator|alert_receiver" || true
+          pkill -f "metrics_generator.py|alert_receiver.py" || true
+          sleep 2
+          # Verify ports are free
+          if netstat -tuln | grep -E ':8000|:3456'; then
+            echo "Ports still in use"
+            exit 1
+          fi
+
+      - name: Start monitoring services
+        run: |
+          cd monitoring/scripts
+          echo "Current directory: $(pwd)"
+          echo "Contents of current directory:"
+          ls -la
+          python manage_services.py start
+          if [ $? -ne 0 ]; then
+            echo "Failed to start services. Checking logs..."
+            cat ../logs/*.log || echo "No logs found"
+            exit 1
+          fi
+
+      - name: Wait for services
+        run: |
+          echo "Waiting for services to be ready..."
+          timeout 30s bash -c '
+            until curl -s http://localhost:8000/metrics > /dev/null && \
+                  curl -s http://localhost:3456/health > /dev/null; do
+              sleep 1
+              echo "Waiting for services..."
+            done
+          '
+
+      - name: Verify services
+        run: |
+          echo "Checking metrics endpoint..."
+          curl -v http://localhost:8000/metrics || {
+            echo "Metrics endpoint not responding"
+            cat monitoring/logs/metrics_generator.log || echo "No metrics log found"
+            exit 1
+          }
+          
+          echo "Checking alert receiver..."
+          curl -v http://localhost:3456/health || {
+            echo "Alert receiver not responding"
+            cat monitoring/logs/alert_receiver.log || echo "No alert receiver log found"
+            exit 1
+          }
+
+      - name: Run monitoring tests
+        run: |
+          cd monitoring/scripts
+          python test_monitoring.py
+        env:
+          PYTHONUNBUFFERED: 1
+
+      - name: Send test alert
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "alerts": [{
+              "status": "firing",
+              "labels": {
+                "severity": "critical",
+                "alertname": "WorkflowTest"
+              },
+              "annotations": {
+                "description": "GitHub workflow test alert"
+              },
+              "startsAt": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+            }]
+          }' http://localhost:3456/alert
+
+      - name: Stop monitoring services
+        if: always()
+        run: |
+          cd monitoring/scripts
+          python manage_services.py stop || true
+          pkill -f "metrics_generator.py|alert_receiver.py" || true
+
+      - name: Collect process info
+        if: failure()
+        run: |
+          echo "Process Status:"
+          ps aux | grep -E "metrics_generator|alert_receiver" || true
+          echo "Port Status:"
+          netstat -tuln | grep -E ':8000|:3456' || true
+          echo "System Resources:"
+          free -h
+          df -h
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-logs
+          path: |
+            monitoring/logs/
+            /tmp/*.log
+          retention-days: 7
+
+      - name: Check for errors
+        if: failure()
+        run: |
+          echo "Workflow failed. Checking logs..."
+          find monitoring/logs -type f -name "*.log" -exec cat {} \; 

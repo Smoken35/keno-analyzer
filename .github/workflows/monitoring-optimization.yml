@@ -1,0 +1,43 @@
+name: Monitoring Optimization
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Run every 6 hours
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  optimize-monitoring:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Analyze metrics and optimize thresholds
+        run: |
+          python monitoring/scripts/optimize_thresholds.py
+        env:
+          PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
+          ALERTMANAGER_URL: ${{ secrets.ALERTMANAGER_URL }}
+
+      - name: Update alert rules
+        run: |
+          python monitoring/scripts/update_alert_rules.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add monitoring/prometheus/alert.rules
+          git commit -m "Auto-update alert thresholds" || echo "No changes to commit"
+          git push 

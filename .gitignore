@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.env
+.venv
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+nohup.out
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Project specific
+youtube_analysis*.json
+youtube_analytics_report_*.json
+youtube_collection_*.json
+mock_test_results.json
+production_test_report.txt
+youtube_collector.out
+*.tar.gz
+
+# Cache
+.cache/
+__pycache__/
+
+# System Files
+.DS_Store
+Thumbs.db
