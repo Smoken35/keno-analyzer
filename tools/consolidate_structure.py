@@ -4,22 +4,20 @@ Project structure consolidation script.
 Moves and copies files to their proper locations in the project structure.
 """
 
+import logging
 import os
 import shutil
-import logging
 from pathlib import Path
 from typing import Dict, List, Union
 
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('consolidation.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("consolidation.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 def setup_directory_structure(base: Path, structure: Dict[Path, List[Union[str, Path]]]) -> None:
     """Create target directories if they don't exist."""
@@ -30,6 +28,7 @@ def setup_directory_structure(base: Path, structure: Dict[Path, List[Union[str, 
         except Exception as e:
             logger.error(f"Failed to create directory {path}: {e}")
 
+
 def process_files(base: Path, structure: Dict[Path, List[Union[str, Path]]]) -> None:
     """Move or copy files to their target locations."""
     for target_dir, files in structure.items():
@@ -38,7 +37,7 @@ def process_files(base: Path, structure: Dict[Path, List[Union[str, Path]]]) -> 
             if not src_path.exists():
                 logger.warning(f"Source file not found: {src_path}")
                 continue
-                
+
             try:
                 dest_path = target_dir / src_path.name
                 if "artifacts" in str(target_dir):
@@ -50,6 +49,7 @@ def process_files(base: Path, structure: Dict[Path, List[Union[str, Path]]]) -> 
             except Exception as e:
                 logger.error(f"Error processing {src_path}: {e}")
 
+
 def cleanup_directories(base: Path, dirs_to_remove: List[str]) -> None:
     """Remove specified directories if they exist."""
     for dir_name in dirs_to_remove:
@@ -60,6 +60,7 @@ def cleanup_directories(base: Path, dirs_to_remove: List[str]) -> None:
                 logger.info(f"Deleted directory: {dir_path}")
         except Exception as e:
             logger.error(f"Could not delete {dir_path}: {e}")
+
 
 def consolidate_keno_package(base: Path) -> None:
     """Consolidate files from keno_analyzer/ into src/keno/ if they exist."""
@@ -77,6 +78,7 @@ def consolidate_keno_package(base: Path) -> None:
         except Exception as e:
             logger.error(f"Error consolidating keno_analyzer: {e}")
 
+
 def main():
     """Main consolidation function."""
     try:
@@ -88,7 +90,8 @@ def main():
         # Define paths to create and their contents
         structure = {
             src / "prediction": ["predictor.py", "model_trainer.py"],
-            src / "data": [f for f in os.listdir(base) if f.startswith("data_") and f.endswith(".py")],
+            src
+            / "data": [f for f in os.listdir(base) if f.startswith("data_") and f.endswith(".py")],
             src / "scripts": ["install.py", "run_tests.py"],
             src / "cli": ["keno-cli.py"],
             artifacts / "data": [f for f in base.glob("*.csv")] + list(base.glob("*.json")),
@@ -107,17 +110,27 @@ def main():
 
         # Clean up known unused directories
         cleanup_dirs = [
-            "keno_analyzer", "keno_data", "analysis_output", "b2b-solution-finder",
-            "backend", "strategy_analysis", "visualizations", "reports",
-            "models", "logs", "data", "temp_staging"
+            "keno_analyzer",
+            "keno_data",
+            "analysis_output",
+            "b2b-solution-finder",
+            "backend",
+            "strategy_analysis",
+            "visualizations",
+            "reports",
+            "models",
+            "logs",
+            "data",
+            "temp_staging",
         ]
         cleanup_directories(base, cleanup_dirs)
 
         logger.info("Project structure consolidation completed successfully")
-        
+
     except Exception as e:
         logger.error(f"Fatal error during consolidation: {e}")
         raise
 
+
 if __name__ == "__main__":
-    main() 
+    main()

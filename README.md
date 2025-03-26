@@ -1,9 +1,9 @@
 # Keno Strategy Analyzer
 
-[![Test](https://github.com/Smoken35/keno-analyzer/actions/workflows/test.yml/badge.svg)](https://github.com/Smoken35/keno-analyzer/actions/workflows/test.yml)
-[![Coverage](https://img.shields.io/badge/coverage-0%25-red.svg)](https://smoken35.github.io/keno-analyzer/coverage_html/index.html)
+[![Tests](https://github.com/user/b2b_solution_finder/actions/workflows/test.yml/badge.svg)](https://github.com/user/b2b_solution_finder/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/badge/coverage-80%25-green.svg)](https://github.com/user/b2b_solution_finder/actions/workflows/test.yml)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/github/license/Smoken35/keno-analyzer)](LICENSE)
+[![License](https://img.shields.io/github/license/user/b2b_solution_finder)](LICENSE)
 [![PyPI version](https://badge.fury.io/py/keno-analyzer.svg)](https://badge.fury.io/py/keno-analyzer)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -117,4 +117,4 @@ sphinx-build -b html docs/source docs/build/html
 
 ![Coverage](https://img.shields.io/badge/coverage-0%25-red.svg)
 
-Detailed coverage reports are available at [Coverage Report](https://smoken35.github.io/keno-analyzer/coverage_html/index.html). 
+Detailed coverage reports are available at [Coverage Report](https://smoken35.github.io/keno-analyzer/coverage_html/index.html).

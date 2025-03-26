@@ -2,12 +2,8 @@
 Keno prediction module.
 """
 
-from .predict import KenoPredictor
 from .pattern_predictor import PatternPredictor
-from .super_ensemble import SuperEnsemble
+from .predict import KenoPredictor
+from .super_ensemble import SuperEnsemblePredictor
 
-__all__ = [
-    "KenoPredictor",
-    "PatternPredictor",
-    "SuperEnsemble"
-] 
+__all__ = ["KenoPredictor", "PatternPredictor", "SuperEnsemblePredictor"]

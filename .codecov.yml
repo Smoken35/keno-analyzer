@@ -1,0 +1,24 @@
+comment: false
+
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+    patch:
+      default:
+        target: 80%
+        threshold: 1%
+
+ignore:
+  - "tests/*"
+  - "docs/*"
+  - "setup.py"
+  - "*/__init__.py"
+  - "*/version.py"
+  - "*/conftest.py"
+
+fixes:
+  - "src/keno/::keno/"
+  - "keno/::keno/"
