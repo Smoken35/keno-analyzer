@@ -2,3 +2,4 @@ streamlit>=1.24.0
 pandas>=2.0.0
 plotly>=5.13.0
 numpy>=1.24.0
+keno-analyzer @ git+https://github.com/yourusername/keno-analyzer.git

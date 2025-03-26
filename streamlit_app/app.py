@@ -4,12 +4,14 @@ Streamlit app for Keno prediction system.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+
+from backend import PredictionBackend
 
 # Configure the page
 st.set_page_config(
@@ -106,6 +108,10 @@ def create_hit_rate_chart(hit_rates: Dict[str, float]) -> go.Figure:
 
 def main() -> None:
     """Main function to run the Streamlit app."""
+    # Initialize session state
+    if "backend" not in st.session_state:
+        st.session_state.backend = PredictionBackend()
+
     # Load custom CSS
     load_css()
 
@@ -141,6 +147,15 @@ def main() -> None:
         help="Upload a CSV file containing historical Keno draw data",
     )
 
+    # Process uploaded file
+    if uploaded_file:
+        success, message = st.session_state.backend.process_csv(uploaded_file)
+        if not success:
+            st.error(message)
+            st.stop()
+        else:
+            st.success(message)
+
     # Create two columns for strategy and picks
     col1, col2 = st.columns(2)
 
@@ -166,28 +181,42 @@ def main() -> None:
     if st.button("Predict", type="primary"):
         if uploaded_file:
             try:
-                # Placeholder for prediction logic
-                st.success("Running prediction... (backend integration coming next)")
+                # Generate prediction
+                success, message, results = st.session_state.backend.generate_prediction(
+                    strategy=strategy, pick_size=pick_size
+                )
 
-                # Example visualizations (to be replaced with real data)
+                if not success:
+                    st.error(message)
+                    st.stop()
+
+                st.success(message)
+
+                # Display results
                 st.subheader("Prediction Results")
 
                 # Create two columns for visualizations
                 viz_col1, viz_col2 = st.columns(2)
 
                 with viz_col1:
-                    st.plotly_chart(create_confidence_gauge(0.75), use_container_width=True)
+                    st.plotly_chart(
+                        create_confidence_gauge(results["confidence"]), use_container_width=True
+                    )
 
                 with viz_col2:
                     st.plotly_chart(
-                        create_hit_rate_chart({"Pattern": 65, "Rule": 58, "Cluster": 62}),
-                        use_container_width=True,
+                        create_hit_rate_chart(results["hit_rates"]), use_container_width=True
                     )
 
-                # Results table (placeholder)
+                # Results table
                 st.subheader("Predicted Numbers")
-                results_df = pd.DataFrame({"Number": range(1, 81), "Confidence": [0.8] * 80})
-                st.dataframe(results_df.nlargest(pick_size, "Confidence"), use_container_width=True)
+                results_df = pd.DataFrame(
+                    {
+                        "Number": results["prediction"],
+                        "Confidence": [results["confidence"]] * len(results["prediction"]),
+                    }
+                )
+                st.dataframe(results_df, use_container_width=True)
 
                 # Download button
                 st.download_button(
