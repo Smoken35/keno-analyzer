@@ -1,0 +1,106 @@
+/* Custom styles for the Keno Prediction System */
+
+/* Main container */
+.main {
+    background-color: #f8f9fa;
+}
+
+/* Sidebar */
+.css-1d391kg {
+    background-color: #2c3e50;
+    color: white;
+}
+
+/* Headers */
+h1, h2, h3 {
+    color: #2c3e50;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+/* Buttons */
+.stButton>button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.stButton>button:hover {
+    background-color: #2980b9;
+}
+
+/* File uploader */
+.stFileUploader {
+    border: 2px dashed #3498db;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Selectbox */
+.stSelectbox>div>div {
+    border-color: #3498db;
+}
+
+/* Slider */
+.stSlider>div>div>div {
+    background-color: #3498db;
+}
+
+/* Dataframe */
+.dataframe {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Success message */
+.stSuccess {
+    background-color: #2ecc71;
+    color: white;
+    padding: 1rem;
+    border-radius: 5px;
+    margin: 1rem 0;
+}
+
+/* Warning message */
+.stWarning {
+    background-color: #f1c40f;
+    color: #2c3e50;
+    padding: 1rem;
+    border-radius: 5px;
+    margin: 1rem 0;
+}
+
+/* Error message */
+.stError {
+    background-color: #e74c3c;
+    color: white;
+    padding: 1rem;
+    border-radius: 5px;
+    margin: 1rem 0;
+}
+
+/* Plotly charts */
+.js-plotly-plot {
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Download button */
+.stDownloadButton>button {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.stDownloadButton>button:hover {
+    background-color: #219a52;
+}
